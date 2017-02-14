@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
-
+import { Push, PushToken } from '@ionic/cloud-angular';
 import { TabsPage } from '../pages/tabs/tabs';
 
 
@@ -11,10 +11,17 @@ import { TabsPage } from '../pages/tabs/tabs';
 export class MyApp {
   rootPage = TabsPage;
 
-  constructor(platform: Platform) {
+  constructor(platform: Platform, push: Push) {
     platform.ready().then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
+      push.register().then((t: PushToken) => {
+          return push.saveToken(t);
+        }).then((t: PushToken) => {
+          console.log('Token saved:', t.token);
+          push.rx.notification()
+            .subscribe((msg) => {
+              alert(msg.title + ': ' + msg.text);
+  });
+        });
       StatusBar.styleDefault();
       Splashscreen.hide();
     });
